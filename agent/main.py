@@ -6,11 +6,18 @@ from PIL import Image
 import numpy as np
 import io
 
-# Load the model
-model = tf.keras.models.load_model('models/game-classifier.keras')
 img_height = 256
 img_width = 256
-class_names = ['Among Us', 'Apex Legends', 'Fortnite', 'Forza Horizon', 'Free Fire', 'Genshin Impact', 'God of War', 'Minecraft', 'Roblox', 'Terraria']
+
+# Load the models
+graphic_style_model = tf.keras.models.load_model('models/Graphic-Style-classifier.keras')
+graphic_style_classes = ['Cartoon', 'Fantasy', 'Low-Poly', 'Pixel-Art', 'Realistic']
+
+perspective_model = tf.keras.models.load_model('models/Perspective-classifier.keras')
+perspective_classes = ['First-Person', 'Isometric', 'Third-Person', 'Top-Down']
+
+game_model = tf.keras.models.load_model('models/Game-classifier.keras')
+game_classes = ['BattleBit', 'CounterStrike', 'DarkSouls', 'EuropaUniversalis', 'Fortnite', 'GrandTheftAuto', 'Grayzone', 'Hades', 'HeartsOfIron', 'LeagueOfLegends', 'LethalCompany', 'Minecraft', 'Overwatch', 'RuneScape', 'Rust', 'SeaOfThieves', 'Terraria', 'TotalWar', 'VRising', 'Warno']
 
 # Preprocess the image
 def process_image(image):
@@ -34,10 +41,20 @@ def upload_file():
         img = image.resize((img_height, img_width))
         img_array = tf.keras.preprocessing.image.img_to_array(img)
         img_array = tf.expand_dims(img_array, 0)  # Create a batch
-        predictions = model.predict(img_array)
-        score = tf.nn.softmax(predictions[0])
-        result = "This image most likely belongs to {} with a {:.2f} percent confidence.".format(class_names[np.argmax(score)], 100 * np.max(score))
-        return render_template('prediction.html', prediction=result)
+
+        graphic_predictions = graphic_style_model.predict(img_array)
+        graphic_score = tf.nn.softmax(graphic_predictions[0])
+        graphic_result = "This image most likely belongs to {} with a {:.2f} percent confidence.".format(graphic_style_classes[np.argmax(graphic_score)], 100 * np.max(graphic_score))
+        
+        game_predictions = game_model.predict(img_array)
+        game_score = tf.nn.softmax(game_predictions[0])
+        game_result = "This image most likely belongs to {} with a {:.2f} percent confidence.".format(game_classes[np.argmax(game_score)], 100 * np.max(game_score))
+        
+        perspective_predictions = perspective_model.predict(img_array)
+        perspective_score = tf.nn.softmax(perspective_predictions[0])
+        perspective_result = "This image most likely belongs to {} with a {:.2f} percent confidence.".format(perspective_classes[np.argmax(perspective_score)], 100 * np.max(perspective_score))
+        
+        return render_template('prediction.html', graphic_prediction=graphic_result, game_prediction=game_result, perspective_prediction=perspective_result)
     return render_template('index.html')
 
 if __name__ == '__main__':
