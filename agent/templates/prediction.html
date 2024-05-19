@@ -11,6 +11,14 @@
     />
   </head>
   <body>
+    <div class="image">
+      <h2>Uploaded Image:</h2>
+      <img
+        src="data:image/jpeg;base64,{{ img_data }}"
+        alt="Uploaded Image"
+        class="uploaded-image"
+      />
+    </div>
     <div class="prediction">
       <h1>Graphic Prediction: {{ graphic_prediction }}</h1>
     </div>

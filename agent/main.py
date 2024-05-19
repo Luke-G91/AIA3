@@ -5,6 +5,7 @@ import tensorflow as tf
 from PIL import Image
 import numpy as np
 import io
+import base64
 
 # Constants
 IMG_HEIGHT = 256
@@ -63,7 +64,16 @@ def upload_file():
             game_result = predict_image(img_array, models_info["game"])
             perspective_result = predict_image(img_array, models_info["perspective"])
 
-            return render_template('prediction.html', graphic_prediction=graphic_result, game_prediction=game_result, perspective_prediction=perspective_result)
+            # Convert image to base64 string
+            buffered = io.BytesIO()
+            image.save(buffered, format="JPEG")
+            img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+            return render_template('prediction.html', 
+                                   graphic_prediction=graphic_result, 
+                                   game_prediction=game_result, 
+                                   perspective_prediction=perspective_result,
+                                   img_data=img_str)
 
         except Exception as e:
             return str(e), 500
